@@ -15,6 +15,13 @@
     <div class="alert-popup" data-alert-container="">
         <div class="alert"></div>
     </div>
+    <div id="refreshPrompt" class="modal">
+        <div class="modal-content">
+            <p>Would you like to play again?</p>
+            <button id="confirmRefresh">Yes</button>
+            <button id="cancelRefresh">No</button>
+        </div>
+    </div>
     <div data-wordle-grid class="wordle-grid">
         <div class="box"></div>
         <div class="box"></div>
@@ -80,9 +87,6 @@
         <button class="key" data-key="N">N</button>
         <button class="key" data-key="M">M</button>
         <button id="deletekey" data-key-delete="Delete">DELETE</button>
-    </div>
-    <div>
-        <button id="restartbutton">RESTART</button>  
     </div>
 </body>
 </html>

@@ -11,6 +11,7 @@ function randomWord () {
 };
 // This function generates a random index from the wordbank array and returns a random word to be used in the game.
 
+startGame();
 // --  EVENT LISTENERS -- //
 function startGame () {
     document.addEventListener("click", handleClick)
@@ -24,6 +25,25 @@ function stopGame () {
 }
 // At the end of the game we will disable the click and keystroke functionality so that no new letters can be added.
 
+function showRefreshPrompt() {
+    const modal = document.getElementById('refreshPrompt');
+    modal.style.display = 'flex';
+}
+
+document.getElementById('confirmRefresh').addEventListener('click', function () {
+    location.reload();
+});
+document.getElementById('cancelRefresh').addEventListener('click', function () {
+    hideRefreshPrompt();
+});
+
+function hideRefreshPrompt() {
+    const modal = document.getElementById('refreshPrompt');
+    modal.style.display = 'none';
+}
+// The above functions and event listeners provide a prompt to refresh the page after the game has ended. This resets all progress and generates a new word so the game can be played again.
+
+// -- GAME CONTROL FUNCTIONS -- //
 function handleClick(event) {
     if (event.target.matches("[data-key]")) {
         pressKey(event.target.dataset.key)
@@ -38,7 +58,7 @@ function handleClick(event) {
         return;
     }
 };
-// The handleClick() function will tell the browser to input the chosen letter into the necessary grid-box. This function is specifically for the on-screen keyboard.
+// The handleClick() function will tell the browser to input the chosen letter into the necessary grid-box. This function is specifically for the on-screen keyboard. We used data attributes in the HTML instead of classes so that we don't need to keep adding/removing classes.
 
 function handleKeystroke(event) {
     if (event.key === "Return" || event.key === "Enter") {
@@ -54,7 +74,7 @@ function handleKeystroke(event) {
         return;
     }
 };
-// The handleKeyStroke() function is the same as the handleClick() function but it is designed to respond to inputs from the mechanical keyboard. We want the game to respond to all the letters, the return key, and the delete key but then to ignore all other keys.
+// The handleKeyStroke() function is the same as the handleClick() function but it is designed to respond to inputs from the mechanical keyboard. We want the game to respond to all the letters, the return key, and the delete key but ignore all other keys.
 
 function pressKey(key) {
     const activeBox = toggleActiveBoxState()
@@ -64,7 +84,7 @@ function pressKey(key) {
     nextBox.textContent = key
     nextBox.dataset.state = "active"
 };
-// Every time a key is pressed we want that specific grid-box to be activated, the key-value to be inserted, and then have the selector move to the next grid-box. When 5 letters are inserted we need to stop and allow the user to either submit the word or delete/change their inputs.
+// Every time a key is pressed we want that specific grid-box to be activated, the letter to be inserted, and then have the selector move to the next grid-box. When 5 letters are inserted we need to stop and allow the user to either submit the word or delete/change their inputs.
 
 function deleteLetter() {
     const activeBox = toggleActiveBoxState()
@@ -80,21 +100,29 @@ function deleteLetter() {
     const activeBox = [...toggleActiveBoxState()]
     if (activeBox.length !== wordLength) {
         popUp("The word must be 5 letters long!")
+        animateGrid(activeBox)
         return
     }
     const playerGuess = activeBox.reduce((word, box) => {
         return word + box.dataset.letter
     }, "")
     if (!wordBank.includes(playerGuess)) {
-        showAlert("That word is wrong!")
-        animateGrid(gridBox)
+        popUp("That word doesn't exist!")
+        animateGrid(activeBox)
         return
     }
     stopGame()
-    activeBox.forEach((...params) => flipGrid(...params, playerGuess))
+    activeBox.forEach((box, index, array) => flipGrid(box, index, array, playerGuess))
 };
-// This function allows us to submit our guess/word by hitting the return/enter key. This word needs to be compared to the answer/correct word. This word needs to be randomly selected from our word bank array.
+// This function allows us to submit our guess/word by hitting the return/enter key. This word needs to be compared to the answer/correct word. This word needs to be randomly selected from our word bank array. If the word is not long enough we want to generate a "pop-up" and animation that informs the player that we are looking for a 5 letter word.
 
+function toggleActiveBoxState() {
+    return gridBox.querySelectorAll('[data-state="active"]')
+};
+// This function gives us our active boxes. SInce our game will be played with 5 letters, we want to return once the 5 letters have been inserted.
+
+
+// -- ANIMATION FUNCTIONS -- //
 function flipGrid(box, index, array, playerGuess) {
     const letter = box.dataset.letter;
     const key = keyboard.querySelector(`[data-key="${letter}"i]`);
@@ -120,62 +148,67 @@ function flipGrid(box, index, array, playerGuess) {
         if (index === array.length - 1) {
             box.addEventListener("transitionend", () => {
                 startGame();
+                checkForWin(playerGuess, array);
             }, { once: true });
         }
     }, { once: true });
 }
+// This function compares the letters that were inserted to the letters in the word from our word bank array and applies an animation and style change to inform the user whether or not the letter is correct, incorrect, or in the wrong location. Once again, here we are using data attributes in our HTML instead of classes so that we don't need to keep adding/removing classes.
 
-function toggleActiveBoxState() {
-    return gridBox.querySelectorAll('[data-state="active"]')
-};
-
-function popUp(text, duration = 1500) {
+function popUp(text, duration = 2500) {
     const alertMessage = document.createElement("div")
     alertMessage.textContent = text
     alertMessage.classList.add("alert")
     alertPopUp.prepend(alertMessage)
-    if (duration === null) return
+    if (duration == null) return
 
     setTimeout(() => {
         alertMessage.classList.add("hide")
         alertMessage.addEventListener("transitionend", () => {
             alertMessage.remove()
         })
-    }, 750)
+    }, duration)
 };
 
-function animateGrid(gridBox) {
-    gridBox.forEach(box => {
+function animateGrid(boxes) {
+    boxes.forEach(box => {
         box.classList.add("shake")
         box.addEventListener("animationend", () => {
             box.classList.remove("shake")
         }, { once: true })
     })
-};
+}
 
-function checkForWin(playerGuess, gridBox) {
+function checkForWin(playerGuess, boxes) {
     if (playerGuess === correctWord) {
-        showAlert("Congratulations, you guessd the word. Enjoy the dopamine hit.", 5000)
-        finalAnimation(gridBox)
+        popUp("Congratulations, you guessed the word.", 5000)
+        finalAnimation(boxes)
         stopGame()
-        return
+        setTimeout(() => {
+            showRefreshPrompt()  
+        }, 5000);
     }
     const gridRemaining = gridBox.querySelectorAll(":not([data-letter])")
-    if (gridRemaining === 0) {
-        showAlert(correctWord.toUpperCase(), null)
+    if (gridRemaining.length === 0 && playerGuess !== correctWord) {
+        popUp("Looks like you ran out of attempts...", 5000)
+        animateGrid(boxes)
         stopGame()
+        setTimeout(() => {
+            showRefreshPrompt()  
+        }, 5000);
     }
 };
 
-function finalAnimation(gridBox) {
-    gridBox.forEach((box, index) => {
+function finalAnimation(boxes) {
+    boxes.forEach((box, index) => {
         setTimeout(() => {
-            box.classList.add("dance")
-            box.addEventListener("animationend", () => {
-                box.classList.remove("dance")
-            }, { once: true })    
-        }, index * animationDuration / 3)
-    })
-};
-
-startGame();
+            box.classList.add("dance");
+            box.addEventListener(
+                "animationend", 
+                () => {
+                box.classList.remove("dance");
+            }, 
+            { once: true });
+        }, index * animationDuration / 3);
+    });
+}
