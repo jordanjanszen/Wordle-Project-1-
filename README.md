@@ -2,42 +2,43 @@
 Welcome to my Wordle Clone, a simple and fun JavaScript game inspired by the classic word-guessing game, Wordle. This project is designed to provide a lightweight and entertaining experience for users to challenge their word-guessing skills.
 
 ## How to Play ##
-**Getting Started:**
+### Getting Started: ###
 
 **1. Clone this repository to your local machine.**
-`git clone https://github.com/jordanjanszen/Wordle-Project-1-`
+- `git clone https://github.com/jordanjanszen/Wordle-Project-1-`
 
 **2. Open the Game:**
-Navigate to the project directory.
-`cd wordle-clone`
-Open the index.html file in your web browser.
+- Navigate to the project directory.
+- `cd wordle-clone`
+- Open the index.html file in your web browser.
 
 **3. Guess the Word:**
-The objective is to guess the hidden five-letter word.
-Enter your guesses in the input field and submit them using your keyboard or the on-screen keys.
-The letters will be color-coded to provide feedback:
-- Green: Correct letter and correct position.
-- Yellow: Correct letter but in the wrong position.
-- Red: Incorrect letter.
+- The objective is to guess the hidden five-letter word.
+- Enter your guesses in the input field and submit them using your keyboard or the on-screen keys.
+- The letters will be color-coded to provide feedback:
+    - Green: Correct letter and correct position.
+    - Yellow: Correct letter but in the wrong position.
+    - Red: Incorrect letter.
 
 **4. Winning the Game:**
-You win when you correctly guess the word within six attempts.
+- You win when you correctly guess the word within six attempts.
 
 
 ## Customize the Game ##
 Feel free to customize and enhance the game to suit your preferences. Here are a few suggestions:
 
 **Word List:**
-Modify the wordList array in the `script.js` file to include your own words.
+- Modify the wordList array in the `script.js` file to include your own words or words of different lengths.
 
 **Difficulty Levels:**
-Adjust the difficulty by changing the length of the hidden word or increasing the number of attempts allowed.
+- Adjust the difficulty by changing the length of the hidden word or modifying the number of attempts allowed.
+- Add a timer feature.
 
 **Styling:**
-Customize the appearance of the game by modifying the CSS styles in the `styles.css` file.
+- Customize the appearance of the game by modifying the CSS styles in the `styles.css` file.
 
 **Scoring:**
-Create a score tally and leaderboard to keep track of progress.
+- Create a point-scoring method, score tally and leaderboard to keep track of player progress.
 
 
 ## Technologies Used ##
